@@ -1,0 +1,13 @@
+[package]
+name = "miobio-crawler"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+once_cell = "1.8.0"
+log ="0.4.14"
+env_logger = "0.11.6"
+tokio = { version = "1.10.0", features = ["full"] }
+reqwest = "0.12.11"
+ctrlc = "3.1.0"
+miobio-core = { path = "../miobio-core" }
