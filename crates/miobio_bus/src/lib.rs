@@ -1,28 +1,18 @@
+use serde::{Deserialize, Serialize};
+
 pub trait MessageBus {
     async fn connect(&mut self) -> Result<(), std::io::Error>;
-    fn next_message(&mut self) -> Option<String>;
+    async fn next_message(&mut self) -> Option<String>;
 }
 
-pub struct Bus {}
+const COMMAND_REQUEST_QUEUE: &str = "command_request_queue";
+const COMMAND_RESPONSE_QUEUE: &str = "command_response_queue";
 
-pub struct Subscription {}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct QuitMessage;
 
-pub enum Command {
-    Quit
-}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct DownloadMessage(String);
 
-pub enum Topic {
-    Commands(Command),
-}
-
-impl Bus {
-    pub fn new() -> Bus {
-        Bus {
-        }
-    }
-
-    pub fn subscribe(&mut self, topic: Topic) -> Subscription{
-        Subscription {
-        }
-    }
-}
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AnalyseMessage(String);
