@@ -1,0 +1,50 @@
+version: '3.9'
+
+services:
+  rabbitmq:
+    image: rabbitmq:4
+    container_name: rabbitmq
+    ports:
+      - "5672:5672" # Default RabbitMQ AMQP port
+      - "15672:15672" # RabbitMQ Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  build_run_crawler:
+    image: rust:latest
+    container_name: build_run_crawler
+    volumes:
+      - ..:/usr/src/app
+    working_dir: /usr/src/app
+    command: >
+      bash -c "
+      cargo build --release && cd target/release && ./miobio_crawler"
+    healthcheck:
+      test: ["CMD", "test", "-f", "target/release/miobio_crawler"]
+      interval: 5s
+      retries: 30
+    depends_on:
+      - rabbitmq
+    stdin_open: true
+    tty: true
+
+  run_tests:
+    image: rust:latest
+    container_name: run_tests
+    volumes:
+      - ..:/usr/src/app
+    working_dir: /usr/src/app
+    command: >
+      bash -c "
+      cargo test --verbose"
+    depends_on:
+      build_run_crawler:
+        condition: service_healthy
+    stdin_open: true
+    tty: true

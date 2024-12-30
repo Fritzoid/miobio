@@ -1,4 +1,6 @@
 use miobio_core::Logging;
+use miobio_rabbit::RabbitBus;
+use miobio_bus::MessageBus;
 
 mod work;
 use work::{Work, WorkQueue};
@@ -12,6 +14,8 @@ async fn main() {
         println!("Ctrl+C pressed. Exiting...");
     })
     .expect("Error setting Ctrl+C handler");
+    let mut rb = RabbitBus::new();
+    rb.connect().await.unwrap();
     loop_function().await;
     Logging::info("Miobio-crawler shutting down");
 }

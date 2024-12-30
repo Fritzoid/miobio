@@ -1,0 +1,9 @@
+[package]
+name = "miobio_rabbit"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+amqprs = "2.1.0"
+tokio = { version = "1.10.0", features = ["full"] }
+miobio_bus = { path = "../miobio_bus" }
