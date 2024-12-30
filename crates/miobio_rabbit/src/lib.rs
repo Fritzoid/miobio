@@ -28,7 +28,7 @@ impl MessageBus for RabbitBus {
         Ok(())
     }
 
-    fn next_message(&mut self) -> Option<String> {
+    async fn next_message(&mut self) -> Option<String> {
         Some("Hello, World!".to_string())
     }
 }

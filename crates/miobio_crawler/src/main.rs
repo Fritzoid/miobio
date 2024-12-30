@@ -11,12 +11,18 @@ async fn main() {
     Logging::info("Miobio-crawler starting up");
     ctrlc::set_handler(move || {
         WorkQueue::get().quit();
-        println!("Ctrl+C pressed. Exiting...");
+        Logging::info("Ctrl+C pressed. Exiting...");
     })
     .expect("Error setting Ctrl+C handler");
-    let mut rb = RabbitBus::new();
-    rb.connect().await.unwrap();
+
+    let rb = RabbitBus::new();
+
+    let jh = tokio::spawn(async move {
+        message_listener(rb).await;
+    });
+
     loop_function().await;
+    jh.abort();
     Logging::info("Miobio-crawler shutting down");
 }
 
@@ -26,18 +32,6 @@ async fn loop_function() {
         match work {
             Some(Work::Download { url }) => {
                 Logging::info(&format!("Downloading {}", url));
-                tokio::task::spawn(async {
-                    let response = reqwest::get(url).await;
-                    match response {
-                        Ok(response) => {
-                            Logging::info(&format!("Response: {}", response.status()));
-                            
-                        }
-                        Err(e) => {
-                            Logging::error(&format!("Error: {}", e));
-                        }
-                    }
-                });
             }
             Some(Work::Analyse { path }) => {
                 Logging::info(&format!("Analysing {}", path));
@@ -51,4 +45,25 @@ async fn loop_function() {
             }
         }
     }
+}
+
+async fn message_listener(mut rb: impl MessageBus) {
+
+    rb.connect().await.unwrap();
+
+    loop {
+        if let Some(message) = rb.next_message().await {
+            // Parse the message and create a Work item
+            let work = parse_message_to_work(message);
+            // Add the Work item to the WorkQueue
+            WorkQueue::get().push(work);
+            tokio::time::sleep(tokio::time::Duration::from_secs(5)).await;
+        }
+    }
+}
+
+fn parse_message_to_work(message: String) -> Work {
+    // Implement your message parsing logic here
+    // For example, you can parse the message to determine the type of work
+    Work::Download { url: message }
 }

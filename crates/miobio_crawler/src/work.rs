@@ -9,6 +9,7 @@ pub enum Work {
 }
 
 pub struct WorkQueue {
+
     queue: VecDeque<Work>,
 }
 
