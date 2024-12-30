@@ -1,5 +1,5 @@
 [package]
-name = "miobio-core"
+name = "miobio_core"
 version = "0.1.0"
 edition = "2021"
 

@@ -1,7 +1,5 @@
 use log;
-use flexi_logger::Duplicate;
-use flexi_logger::FileSpec;
-use flexi_logger::Logger;
+use flexi_logger::*;
 
 pub struct Logging {}
 
@@ -12,8 +10,10 @@ impl Logging {
             .log_to_file(FileSpec::default())
             .duplicate_to_stdout(Duplicate::Info)
             .append()
+            .format(detailed_format)
             .start()
             .unwrap();
+
     }
 
     pub fn info(msg: &str) {
